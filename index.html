@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>XNOLAB Crew</title>
+<style>
+:root {
+  --bg: #F2F2F7;
+  --card: #FFFFFF;
+  --text: #1C1C1E;
+  --text2: #8E8E93;
+  --border: #E5E5EA;
+  --primary: #007AFF;
+  --danger: #FF3B30;
+  --success: #34C759;
+  --warning: #FF9500;
+  --medium: #FF9500;
+  --low: #007AFF;
+  --radius: 12px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-lg: 0 4px 16px rgba(0,0,0,0.1);
+  --tab-bg: #FFFFFF;
+  --input-bg: #F2F2F7;
+  --modal-overlay: rgba(0,0,0,0.3);
+  --badge-bg: #F2F2F7;
+}
+[data-theme="dark"] {
+  --bg: #000000;
+  --card: #1C1C1E;
+  --text: #F2F2F7;
+  --text2: #8E8E93;
+  --border: #38383A;
+  --tab-bg: #1C1C1E;
+  --input-bg: #2C2C2E;
+  --modal-overlay: rgba(0,0,0,0.6);
+  --shadow: 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-lg: 0 4px 16px rgba(0,0,0,0.4);
+  --badge-bg: #2C2C2E;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+/* LOGIN */
+.login-screen {
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  min-height:100vh; padding:24px;
+}
+.login-logo { font-size:32px; font-weight:700; margin-bottom:8px; letter-spacing:-0.5px; }
+.login-logo span { color: var(--primary); }
+.login-sub { color:var(--text2); margin-bottom:40px; font-size:15px; }
+.login-card {
+  background:var(--card); border-radius:var(--radius); padding:28px; width:100%; max-width:360px;
+  box-shadow:var(--shadow-lg);
+}
+.login-card h2 { font-size:20px; font-weight:600; margin-bottom:20px; }
+.form-group { margin-bottom:16px; }
+.form-group label { display:block; font-size:13px; font-weight:500; color:var(--text2); margin-bottom:6px; }
+.form-group input {
+  width:100%; padding:12px 14px; border-radius:10px; border:1px solid var(--border);
+  background:var(--input-bg); color:var(--text); font-size:16px; outline:none;
+  transition: border-color 0.2s;
+}
+.form-group input:focus { border-color:var(--primary); }
+.btn {
+  width:100%; padding:14px; border:none; border-radius:10px; font-size:16px; font-weight:600;
+  cursor:pointer; transition: opacity 0.2s, transform 0.1s;
+}
+.btn:active { transform:scale(0.98); }
+.btn-primary { background:var(--primary); color:#fff; }
+.btn-primary:hover { opacity:0.9; }
+.login-error { color:var(--danger); font-size:13px; margin-top:12px; text-align:center; display:none; }
+
+/* APP SHELL */
+.app { display:none; flex-direction:column; min-height:100vh; }
+.app.active { display:flex; }
+.app-header {
+  padding:12px 20px; display:flex; align-items:center; justify-content:space-between;
+  background:var(--card); border-bottom:1px solid var(--border);
+  position:sticky; top:0; z-index:100;
+}
+.app-title { font-size:18px; font-weight:700; letter-spacing:-0.3px; }
+.app-title span { color:var(--primary); }
+.header-right { display:flex; align-items:center; gap:12px; }
+.avatar {
+  width:32px; height:32px; border-radius:50%; background:var(--primary);
+  color:#fff; display:flex; align-items:center; justify-content:center;
+  font-size:13px; font-weight:600;
+}
+.app-content { flex:1; padding:16px 20px 100px; overflow-y:auto; }
+
+/* TAB BAR */
+.tab-bar {
+  position:fixed; bottom:0; left:0; right:0; display:flex;
+  background:var(--tab-bg); border-top:1px solid var(--border);
+  padding:8px 0 env(safe-area-inset-bottom, 8px); z-index:100;
+}
+.tab-item {
+  flex:1; display:flex; flex-direction:column; align-items:center; gap:2px;
+  padding:6px 0; cursor:pointer; color:var(--text2); transition:color 0.2s;
+  background:none; border:none; font-family:inherit;
+}
+.tab-item.active { color:var(--primary); }
+.tab-item svg { width:24px; height:24px; }
+.tab-label { font-size:10px; font-weight:500; }
+
+/* CARDS */
+.card {
+  background:var(--card); border-radius:var(--radius); padding:16px;
+  box-shadow:var(--shadow); margin-bottom:12px;
+}
+.section-title { font-size:13px; font-weight:600; color:var(--text2); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:12px; }
+
+/* SUMMARY CARDS */
+.summary-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px; }
+.summary-card {
+  background:var(--card); border-radius:var(--radius); padding:14px;
+  box-shadow:var(--shadow);
+}
+.summary-card .num { font-size:28px; font-weight:700; line-height:1; }
+.summary-card .lbl { font-size:12px; color:var(--text2); margin-top:4px; font-weight:500; }
+.summary-card.total .num { color:var(--primary); }
+.summary-card.progress .num { color:var(--warning); }
+.summary-card.done .num { color:var(--success); }
+.summary-card.overdue .num { color:var(--danger); }
+
+/* TASK ITEMS */
+.task-item {
+  background:var(--card); border-radius:var(--radius); padding:14px 16px;
+  box-shadow:var(--shadow); margin-bottom:8px; cursor:pointer;
+  transition: transform 0.15s;
+}
+.task-item:active { transform:scale(0.99); }
+.task-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
+.task-title { font-size:15px; font-weight:600; flex:1; }
+.priority-badge {
+  font-size:11px; font-weight:600; padding:3px 8px; border-radius:6px;
+  text-transform:uppercase; letter-spacing:0.3px;
+}
+.priority-high { background:rgba(255,59,48,0.12); color:var(--danger); }
+.priority-medium { background:rgba(255,149,0,0.12); color:var(--warning); }
+.priority-low { background:rgba(0,122,255,0.12); color:var(--primary); }
+.task-meta { display:flex; align-items:center; gap:12px; font-size:12px; color:var(--text2); }
+.task-assignee { display:flex; align-items:center; gap:4px; }
+.mini-avatar {
+  width:18px; height:18px; border-radius:50%; font-size:8px; font-weight:600;
+  display:flex; align-items:center; justify-content:center; color:#fff;
+}
+.status-dot { width:8px; height:8px; border-radius:50%; display:inline-block; }
+.status-todo { background:#8E8E93; }
+.status-inprogress { background:var(--warning); }
+.status-review { background:var(--primary); }
+.status-done { background:var(--success); }
+
+/* BOARD VIEW */
+.board-columns { display:flex; gap:12px; overflow-x:auto; padding-bottom:12px; -webkit-overflow-scrolling:touch; }
+.board-col { min-width:260px; flex:1; }
+.board-col-header {
+  display:flex; align-items:center; gap:8px; margin-bottom:10px; padding:0 4px;
+}
+.board-col-title { font-size:14px; font-weight:600; }
+.board-col-count {
+  font-size:12px; background:var(--badge-bg); padding:2px 8px; border-radius:10px;
+  color:var(--text2); font-weight:500;
+}
+.board-col-tasks { min-height:60px; }
+
+/* CAPACITY */
+.capacity-bar-wrap { margin-bottom:16px; }
+.capacity-person { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+.capacity-name { font-size:14px; font-weight:500; flex:1; }
+.capacity-count { font-size:13px; color:var(--text2); }
+.capacity-bar { height:8px; background:var(--input-bg); border-radius:4px; overflow:hidden; }
+.capacity-fill { height:100%; border-radius:4px; transition:width 0.3s; }
+
+/* MODAL */
+.modal-overlay {
+  position:fixed; inset:0; background:var(--modal-overlay); z-index:200;
+  display:none; align-items:flex-end; justify-content:center;
+  backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px);
+}
+.modal-overlay.active { display:flex; }
+.modal {
+  background:var(--card); border-radius:16px 16px 0 0; padding:24px 20px 40px;
+  width:100%; max-width:500px; max-height:85vh; overflow-y:auto;
+}
+.modal-handle { width:36px; height:4px; background:var(--border); border-radius:2px; margin:0 auto 16px; }
+.modal h3 { font-size:18px; font-weight:600; margin-bottom:20px; }
+.modal .form-group select {
+  width:100%; padding:12px 14px; border-radius:10px; border:1px solid var(--border);
+  background:var(--input-bg); color:var(--text); font-size:16px; outline:none;
+  -webkit-appearance:none; appearance:none;
+}
+.modal .form-group textarea {
+  width:100%; padding:12px 14px; border-radius:10px; border:1px solid var(--border);
+  background:var(--input-bg); color:var(--text); font-size:16px; outline:none;
+  resize:vertical; min-height:80px; font-family:inherit;
+}
+.modal-actions { display:flex; gap:10px; margin-top:20px; }
+.modal-actions .btn { flex:1; }
+.btn-secondary { background:var(--input-bg); color:var(--text); }
+
+/* FAB */
+.fab {
+  position:fixed; bottom:90px; right:20px; width:52px; height:52px;
+  border-radius:50%; background:var(--primary); color:#fff; border:none;
+  font-size:28px; display:flex; align-items:center; justify-content:center;
+  box-shadow:0 4px 12px rgba(0,122,255,0.4); cursor:pointer; z-index:90;
+  transition: transform 0.2s;
+}
+.fab:active { transform:scale(0.92); }
+
+/* DAILY SUMMARY */
+.summary-block { padding:16px; background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); margin-bottom:12px; }
+.summary-block h4 { font-size:15px; font-weight:600; margin-bottom:8px; }
+.summary-block p { font-size:13px; color:var(--text2); line-height:1.5; }
+.summary-block .highlight { color:var(--primary); font-weight:600; }
+
+/* SETTINGS */
+.setting-row {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 0; border-bottom:1px solid var(--border);
+}
+.setting-row:last-child { border:none; }
+.setting-label { font-size:15px; }
+.toggle {
+  width:50px; height:30px; border-radius:15px; background:var(--border);
+  position:relative; cursor:pointer; transition:background 0.3s; border:none;
+}
+.toggle.on { background:var(--success); }
+.toggle::after {
+  content:''; position:absolute; top:2px; left:2px; width:26px; height:26px;
+  border-radius:50%; background:#fff; transition:transform 0.3s;
+  box-shadow:0 1px 3px rgba(0,0,0,0.2);
+}
+.toggle.on::after { transform:translateX(20px); }
+.logout-btn {
+  width:100%; padding:14px; border:none; border-radius:10px;
+  background:rgba(255,59,48,0.1); color:var(--danger); font-size:16px;
+  font-weight:600; cursor:pointer; margin-top:20px;
+}
+
+/* TASK DETAIL MODAL */
+.detail-status-row { display:flex; gap:8px; margin:16px 0; flex-wrap:wrap; }
+.status-btn {
+  padding:8px 14px; border-radius:8px; border:1px solid var(--border);
+  background:var(--input-bg); color:var(--text); font-size:13px; font-weight:500;
+  cursor:pointer; transition: all 0.2s;
+}
+.status-btn.active { border-color:var(--primary); background:rgba(0,122,255,0.1); color:var(--primary); }
+.delete-btn {
+  padding:10px; border:none; background:rgba(255,59,48,0.1); color:var(--danger);
+  border-radius:8px; font-size:14px; font-weight:500; cursor:pointer; width:100%; margin-top:12px;
+}
+
+/* RESPONSIVE */
+@media(min-width:768px) {
+  .summary-grid { grid-template-columns: repeat(4,1fr); }
+  .app-content { padding:20px 32px 100px; }
+  .modal { border-radius:16px; margin-bottom:40px; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-logo">XNOLAB <span>Crew</span></div>
+  <div class="login-sub">Task Management for the Team</div>
+  <div class="login-card">
+    <h2>Sign In</h2>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email">
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="loginPass" placeholder="Enter password" autocomplete="current-password">
+    </div>
+    <button class="btn btn-primary" onclick="doLogin()">Sign In</button>
+    <div class="login-error" id="loginError">Invalid email or password</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="app">
+  <header class="app-header">
+    <div class="app-title">XNOLAB <span>Crew</span></div>
+    <div class="header-right">
+      <div class="avatar" id="headerAvatar"></div>
+    </div>
+  </header>
+
+  <main class="app-content" id="appContent"></main>
+
+  <button class="fab" onclick="openCreateModal()" title="New Task">+</button>
+
+  <nav class="tab-bar" id="tabBar"></nav>
+</div>
+
+<!-- CREATE TASK MODAL -->
+<div class="modal-overlay" id="createModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h3>New Task</h3>
+    <div class="form-group">
+      <label>Title</label>
+      <input type="text" id="taskTitle" placeholder="What needs to be done?">
+    </div>
+    <div class="form-group">
+      <label>Description</label>
+      <textarea id="taskDesc" placeholder="Add details..."></textarea>
+    </div>
+    <div class="form-group">
+      <label>Assignee</label>
+      <select id="taskAssignee"></select>
+    </div>
+    <div class="form-group">
+      <label>Priority</label>
+      <select id="taskPriority">
+        <option value="high">High</option>
+        <option value="medium" selected>Medium</option>
+        <option value="low">Low</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Due Date</label>
+      <input type="date" id="taskDue">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeCreateModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveTask()">Create Task</button>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal" id="detailContent"></div>
+</div>
+
+<script>
+// ─── DATA ───
+const USERS = [
+  { id:'xno', name:'Xno', email:'xno@xnolab.com', pw:'xnolab2026', role:'admin', color:'#007AFF' },
+  { id:'hoanganh', name:'Hoang Anh', email:'hoanganh@ortho.fashion', pw:'ortho2026', role:'staff', color:'#FF9500', title:'3D Specialist' },
+  { id:'nhi', name:'Ngoc Nhi', email:'nhi@ortho.fashion', pw:'ortho2026', role:'staff', color:'#AF52DE', title:'Fashion Designer + Clo3D' }
+];
+const STATUSES = ['todo','inprogress','review','done'];
+const STATUS_LABELS = { todo:'To Do', inprogress:'In Progress', review:'Review', done:'Done' };
+
+let currentUser = null;
+let currentTab = 'dashboard';
+
+function getTasks() {
+  return JSON.parse(localStorage.getItem('xnolab_tasks') || '[]');
+}
+function saveTasks(t) {
+  localStorage.setItem('xnolab_tasks', JSON.stringify(t));
+}
+
+// ─── AUTH ───
+function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+  const pw = document.getElementById('loginPass').value;
+  const user = USERS.find(u => u.email === email && u.pw === pw);
+  if (!user) {
+    document.getElementById('loginError').style.display = 'block';
+    return;
+  }
+  currentUser = user;
+  localStorage.setItem('xnolab_user', user.id);
+  showApp();
+}
+function logout() {
+  localStorage.removeItem('xnolab_user');
+  currentUser = null;
+  document.getElementById('app').classList.remove('active');
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('loginEmail').value = '';
+  document.getElementById('loginPass').value = '';
+  document.getElementById('loginError').style.display = 'none';
+}
+function showApp() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('app').classList.add('active');
+  document.getElementById('headerAvatar').textContent = currentUser.name.charAt(0);
+  document.getElementById('headerAvatar').style.background = currentUser.color;
+  buildTabs();
+  renderTab();
+  seedIfEmpty();
+}
+
+// ─── TABS ───
+function buildTabs() {
+  const tabs = [
+    { id:'dashboard', label:'Dashboard', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>' },
+    { id:'mytasks', label:'My Tasks', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>' },
+  ];
+  if (currentUser.role === 'admin') {
+    tabs.push({ id:'team', label:'Team', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>' });
+  }
+  tabs.push({ id:'settings', label:'Settings', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>' });
+
+  const bar = document.getElementById('tabBar');
+  bar.innerHTML = tabs.map(t => `
+    <button class="tab-item ${t.id===currentTab?'active':''}" onclick="switchTab('${t.id}')">
+      ${t.icon}
+      <span class="tab-label">${t.label}</span>
+    </button>
+  `).join('');
+}
+
+function switchTab(id) {
+  currentTab = id;
+  buildTabs();
+  renderTab();
+}
+
+// ─── RENDER ───
+function renderTab() {
+  const c = document.getElementById('appContent');
+  document.querySelector('.fab').style.display = (currentTab==='settings')?'none':'flex';
+  switch(currentTab) {
+    case 'dashboard': c.innerHTML = renderDashboard(); break;
+    case 'mytasks': c.innerHTML = renderMyTasks(); break;
+    case 'team': c.innerHTML = renderTeam(); break;
+    case 'settings': c.innerHTML = renderSettings(); break;
+  }
+}
+
+function getVisibleTasks() {
+  const all = getTasks();
+  if (currentUser.role === 'admin') return all;
+  return all.filter(t => t.assignee === currentUser.id);
+}
+
+function renderDashboard() {
+  const tasks = getVisibleTasks();
+  const now = new Date().toISOString().split('T')[0];
+  const total = tasks.length;
+  const inprog = tasks.filter(t=>t.status==='inprogress').length;
+  const done = tasks.filter(t=>t.status==='done').length;
+  const overdue = tasks.filter(t=>t.due && t.due < now && t.status!=='done').length;
+
+  let html = `
+    <div class="summary-grid">
+      <div class="summary-card total"><div class="num">${total}</div><div class="lbl">Total Tasks</div></div>
+      <div class="summary-card progress"><div class="num">${inprog}</div><div class="lbl">In Progress</div></div>
+      <div class="summary-card done"><div class="num">${done}</div><div class="lbl">Completed</div></div>
+      <div class="summary-card overdue"><div class="num">${overdue}</div><div class="lbl">Overdue</div></div>
+    </div>
+  `;
+
+  // Daily Summary
+  html += renderDailySummary(tasks, now);
+
+  // Board
+  html += `<div class="section-title" style="margin-top:20px">Task Board</div>`;
+  html += `<div class="board-columns">`;
+  STATUSES.forEach(s => {
+    const st = tasks.filter(t=>t.status===s);
+    html += `<div class="board-col">
+      <div class="board-col-header">
+        <span class="status-dot status-${s}"></span>
+        <span class="board-col-title">${STATUS_LABELS[s]}</span>
+        <span class="board-col-count">${st.length}</span>
+      </div>
+      <div class="board-col-tasks">${st.map(t=>renderTaskCard(t)).join('')}</div>
+    </div>`;
+  });
+  html += `</div>`;
+  return html;
+}
+
+function renderDailySummary(tasks, now) {
+  const done = tasks.filter(t=>t.status==='done').length;
+  const total = tasks.length;
+  const overdue = tasks.filter(t=>t.due && t.due < now && t.status!=='done');
+  const inReview = tasks.filter(t=>t.status==='review');
+  const highPri = tasks.filter(t=>t.priority==='high' && t.status!=='done');
+
+  let insights = [];
+  if (total === 0) {
+    insights.push('No tasks yet. Create your first task to get started!');
+  } else {
+    const pct = Math.round((done/total)*100);
+    insights.push(`Team completion rate is <span class="highlight">${pct}%</span> (${done}/${total} tasks done).`);
+    if (overdue.length > 0) insights.push(`<span style="color:var(--danger);font-weight:600">${overdue.length} task${overdue.length>1?'s':''} overdue</span> — needs attention.`);
+    if (inReview.length > 0) insights.push(`${inReview.length} task${inReview.length>1?'s':''} waiting for review.`);
+    if (highPri.length > 0) insights.push(`${highPri.length} high-priority task${highPri.length>1?'s':''} still open.`);
+  }
+
+  return `<div class="summary-block">
+    <h4>Daily Summary — ${new Date().toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'})}</h4>
+    ${insights.map(i=>`<p>${i}</p>`).join('')}
+  </div>`;
+}
+
+function renderTaskCard(t) {
+  const user = USERS.find(u=>u.id===t.assignee);
+  const overdue = t.due && t.due < new Date().toISOString().split('T')[0] && t.status!=='done';
+  return `<div class="task-item" onclick="openDetail('${t.id}')">
+    <div class="task-header">
+      <span class="task-title">${esc(t.title)}</span>
+      <span class="priority-badge priority-${t.priority}">${t.priority}</span>
+    </div>
+    <div class="task-meta">
+      <span class="task-assignee">
+        <span class="mini-avatar" style="background:${user?user.color:'#8E8E93'}">${user?user.name.charAt(0):'?'}</span>
+        ${user?user.name:'Unassigned'}
+      </span>
+      ${t.due ? `<span style="${overdue?'color:var(--danger);font-weight:600':''}">Due ${t.due}</span>` : ''}
+    </div>
+  </div>`;
+}
+
+function renderMyTasks() {
+  const tasks = getTasks().filter(t=>t.assignee===currentUser.id);
+  let html = `<div class="section-title">My Tasks</div>`;
+  if (tasks.length === 0) {
+    html += `<div class="card"><p style="color:var(--text2);text-align:center;padding:20px 0;">No tasks assigned to you yet.</p></div>`;
+    return html;
+  }
+  STATUSES.forEach(s => {
+    const st = tasks.filter(t=>t.status===s);
+    if (st.length === 0) return;
+    html += `<div class="section-title" style="margin-top:16px">${STATUS_LABELS[s]}</div>`;
+    st.forEach(t => { html += renderTaskCard(t); });
+  });
+  return html;
+}
+
+function renderTeam() {
+  const tasks = getTasks();
+  let html = `<div class="section-title">Capacity Overview</div><div class="card">`;
+  USERS.forEach(u => {
+    const ut = tasks.filter(t=>t.assignee===u.id && t.status!=='done');
+    const total = tasks.filter(t=>t.assignee===u.id).length;
+    const pct = Math.min(100, ut.length * 20);
+    const barColor = pct > 80 ? 'var(--danger)' : pct > 50 ? 'var(--warning)' : 'var(--success)';
+    html += `<div class="capacity-bar-wrap">
+      <div class="capacity-person">
+        <span class="mini-avatar" style="background:${u.color};width:24px;height:24px;font-size:11px">${u.name.charAt(0)}</span>
+        <span class="capacity-name">${u.name}</span>
+        <span class="capacity-count">${ut.length} active / ${total} total</span>
+      </div>
+      <div class="capacity-bar"><div class="capacity-fill" style="width:${pct}%;background:${barColor}"></div></div>
+    </div>`;
+  });
+  html += `</div>`;
+
+  // All tasks
+  html += `<div class="section-title" style="margin-top:20px">All Tasks</div>`;
+  tasks.forEach(t => { html += renderTaskCard(t); });
+  return html;
+}
+
+function renderSettings() {
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  let html = `<div class="section-title">Account</div><div class="card">
+    <div class="setting-row"><span class="setting-label">${currentUser.name}</span><span style="color:var(--text2);font-size:13px">${currentUser.email}</span></div>
+    <div class="setting-row"><span class="setting-label">Role</span><span style="color:var(--text2);font-size:13px;text-transform:capitalize">${currentUser.role}</span></div>
+  </div>`;
+  html += `<div class="section-title" style="margin-top:20px">Preferences</div><div class="card">
+    <div class="setting-row">
+      <span class="setting-label">Dark Mode</span>
+      <button class="toggle ${dark?'on':''}" onclick="toggleDark(this)"></button>
+    </div>
+  </div>`;
+  html += `<button class="logout-btn" onclick="logout()">Sign Out</button>`;
+  return html;
+}
+
+// ─── DARK MODE ───
+function toggleDark(el) {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  if (isDark) {
+    document.documentElement.removeAttribute('data-theme');
+    localStorage.removeItem('xnolab_dark');
+    el.classList.remove('on');
+  } else {
+    document.documentElement.setAttribute('data-theme','dark');
+    localStorage.setItem('xnolab_dark','1');
+    el.classList.add('on');
+  }
+}
+
+// ─── MODALS ───
+function openCreateModal() {
+  const sel = document.getElementById('taskAssignee');
+  const users = currentUser.role==='admin' ? USERS : [currentUser];
+  sel.innerHTML = users.map(u=>`<option value="${u.id}">${u.name}</option>`).join('');
+  document.getElementById('taskTitle').value = '';
+  document.getElementById('taskDesc').value = '';
+  document.getElementById('taskPriority').value = 'medium';
+  document.getElementById('taskDue').value = '';
+  document.getElementById('createModal').classList.add('active');
+}
+function closeCreateModal() {
+  document.getElementById('createModal').classList.remove('active');
+}
+function saveTask() {
+  const title = document.getElementById('taskTitle').value.trim();
+  if (!title) return;
+  const tasks = getTasks();
+  tasks.push({
+    id: 't' + Date.now(),
+    title,
+    desc: document.getElementById('taskDesc').value.trim(),
+    assignee: document.getElementById('taskAssignee').value,
+    priority: document.getElementById('taskPriority').value,
+    due: document.getElementById('taskDue').value,
+    status: 'todo',
+    created: new Date().toISOString(),
+    createdBy: currentUser.id
+  });
+  saveTasks(tasks);
+  closeCreateModal();
+  renderTab();
+}
+
+function openDetail(id) {
+  const tasks = getTasks();
+  const t = tasks.find(x=>x.id===id);
+  if (!t) return;
+  const user = USERS.find(u=>u.id===t.assignee);
+  const canEdit = currentUser.role==='admin' || t.assignee===currentUser.id;
+
+  let html = `<div class="modal-handle"></div>
+    <h3>${esc(t.title)}</h3>
+    <p style="color:var(--text2);font-size:14px;margin-bottom:12px">${esc(t.desc)||'<em>No description</em>'}</p>
+    <div class="task-meta" style="margin-bottom:8px">
+      <span class="task-assignee">
+        <span class="mini-avatar" style="background:${user?user.color:'#8E8E93'}">${user?user.name.charAt(0):'?'}</span>
+        ${user?user.name:'Unassigned'}
+      </span>
+      <span class="priority-badge priority-${t.priority}">${t.priority}</span>
+      ${t.due?`<span>Due ${t.due}</span>`:''}
+    </div>`;
+
+  if (canEdit) {
+    html += `<div class="section-title" style="margin-top:16px">Status</div><div class="detail-status-row">`;
+    STATUSES.forEach(s => {
+      html += `<button class="status-btn ${t.status===s?'active':''}" onclick="changeStatus('${id}','${s}')">${STATUS_LABELS[s]}</button>`;
+    });
+    html += `</div>`;
+    if (currentUser.role==='admin') {
+      html += `<button class="delete-btn" onclick="deleteTask('${id}')">Delete Task</button>`;
+    }
+  }
+  html += `<button class="btn btn-secondary" style="margin-top:12px" onclick="closeDetail()">Close</button>`;
+
+  document.getElementById('detailContent').innerHTML = html;
+  document.getElementById('detailModal').classList.add('active');
+}
+function closeDetail() {
+  document.getElementById('detailModal').classList.remove('active');
+}
+function changeStatus(id, status) {
+  const tasks = getTasks();
+  const t = tasks.find(x=>x.id===id);
+  if (t) { t.status = status; saveTasks(tasks); }
+  closeDetail();
+  renderTab();
+}
+function deleteTask(id) {
+  let tasks = getTasks();
+  tasks = tasks.filter(x=>x.id!==id);
+  saveTasks(tasks);
+  closeDetail();
+  renderTab();
+}
+
+// ─── SEED DATA ───
+function seedIfEmpty() {
+  if (getTasks().length > 0) return;
+  const now = new Date();
+  const d = (off) => { const x=new Date(now); x.setDate(x.getDate()+off); return x.toISOString().split('T')[0]; };
+  const seed = [
+    { id:'t1', title:'Design brand identity system', desc:'Create logo variants, color palette, and typography guidelines for XNOLAB.', assignee:'nhi', priority:'high', due:d(3), status:'inprogress', created:now.toISOString(), createdBy:'xno' },
+    { id:'t2', title:'3D product renders — Spring collection', desc:'Render 12 hero product shots with studio lighting setup.', assignee:'hoanganh', priority:'high', due:d(5), status:'inprogress', created:now.toISOString(), createdBy:'xno' },
+    { id:'t3', title:'Set up project management workflow', desc:'Configure task boards, roles, and notification rules.', assignee:'xno', priority:'medium', due:d(1), status:'review', created:now.toISOString(), createdBy:'xno' },
+    { id:'t4', title:'Fabric swatch digitization', desc:'Photograph and catalog 30 fabric swatches for the digital library.', assignee:'nhi', priority:'medium', due:d(7), status:'todo', created:now.toISOString(), createdBy:'xno' },
+    { id:'t5', title:'3D garment simulation tests', desc:'Test drape physics on 5 base patterns using CLO3D.', assignee:'hoanganh', priority:'low', due:d(10), status:'todo', created:now.toISOString(), createdBy:'xno' },
+    { id:'t6', title:'Weekly team sync notes', desc:'Document action items from weekly Monday standup.', assignee:'xno', priority:'low', due:d(-1), status:'done', created:now.toISOString(), createdBy:'xno' },
+    { id:'t7', title:'Client mood board — Ortho Fashion', desc:'Assemble visual references and style direction for client presentation.', assignee:'nhi', priority:'high', due:d(-2), status:'todo', created:now.toISOString(), createdBy:'xno' },
+    { id:'t8', title:'Export assets for website hero', desc:'Prepare optimized PNGs and WebP from latest 3D renders.', assignee:'hoanganh', priority:'medium', due:d(4), status:'todo', created:now.toISOString(), createdBy:'xno' },
+  ];
+  saveTasks(seed);
+  renderTab();
+}
+
+// ─── UTILS ───
+function esc(s) { const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
+
+// ─── INIT ───
+(function() {
+  if (localStorage.getItem('xnolab_dark')==='1') document.documentElement.setAttribute('data-theme','dark');
+  const uid = localStorage.getItem('xnolab_user');
+  if (uid) {
+    currentUser = USERS.find(u=>u.id===uid);
+    if (currentUser) { showApp(); return; }
+  }
+  document.getElementById('loginScreen').style.display = 'flex';
+})();
+
+// Close modals on overlay click
+document.getElementById('createModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeCreateModal(); });
+document.getElementById('detailModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeDetail(); });
+</script>
+</body>
+</html>
